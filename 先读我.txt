@@ -1,0 +1,5 @@
+1. npm install  安装所有的依赖
+2. 导入sql(expressApi.sql)文件到自己的数据库,(注意：先创建数据库，在右键运行sql即可)
+3. 修改util/model.js ,改为自己的数据库信息
+
+4. 启动  pm2 ./app
