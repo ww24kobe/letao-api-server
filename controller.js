@@ -749,7 +749,26 @@ controller.updArticle = async (req, res) => {
     //     response.message = e.message;
     //     response.code = 0;
     // }
-    res.json(res.body);
+    res.json(req.body);
+}
+
+
+// 获取分类
+// 获取文章
+controller.getcate = async (req, res) => {
+    // var page = parseInt(req.query.page) || 1;
+    // var pagesize = parseInt(req.query.pagesize) || 3;
+    // var offset = (page - 1) * pagesize;
+    // 代表返回的数据结构
+    var response = {
+        code: 200,
+        message: 'success'
+    }
+    var sql = "select *  from le_category";
+    var rows = await query(sql)
+    // rows.map(v=> v.img_url = getDomain() + v.img_url)
+    response.data = rows;
+    res.json(response)
 }
 
 controller.notFound = (req,res) => {
