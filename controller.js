@@ -648,6 +648,23 @@ controller.getarticle = async (req, res) => {
     res.json(response)
 }
 
+
+// 获取文章
+controller.getOneArticle = async (req, res) => {
+    var id = parseInt(req.params.id) || 0;
+    
+    // 代表返回的数据结构
+    var response = {
+        code: 200,
+        message: 'success'
+    }
+    var sql = `select * from le_article where id = ${id}`;
+    var rows = await query(sql)
+    rows.map(v => v.img_url = getDomain() + v.img_url)
+    response.data = rows[0] || null;
+    res.json(response)
+}
+
 // 删除文章
 controller.delarticle = async (req, res) => {
     var {
@@ -707,6 +724,32 @@ controller.addarticle = async (req,res) => {
         response.code = 0;
     }
     res.json(response);
+}
+
+
+// 修改文章
+controller.updArticle = async (req, res) => {
+    var {
+        title,
+        cat_id,
+        add_date,
+        status,
+        img_url,
+        content
+    } = req.body;
+    status = status ? 1 : 0;
+    // var sql = `insert into  le_article(title,cat_id,status,add_date,content,img_url)
+    //             values ('${title}','${cat_id}','${status}','${utc2Date(add_date)}','${content}','${img_url}')`
+    // var response = {};
+    // try {
+    //     var rows = await query(sql);
+    //     response.code = 200;
+    //     response.message = 'add success';
+    // } catch (e) {
+    //     response.message = e.message;
+    //     response.code = 0;
+    // }
+    res.json(res.body);
 }
 
 controller.notFound = (req,res) => {

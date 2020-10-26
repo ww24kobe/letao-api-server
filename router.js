@@ -110,8 +110,10 @@ var multer  = require('multer')
 var upload = multer({ dest: 'uploads/' })
 // fs.mkdirSync(__dirname + 'uploads')
 route.get('/api/getarticle/', controller.getarticle)
+route.get('/api/getonearticle/:id', controller.getOneArticle)
 route.post('/api/delarticle/', controller.delarticle)
 route.post('/api/addarticle/',controller.addarticle)
+route.post('/api/updarticle/', controller.updArticle)
 route.post('/api/upload/', upload.single('file'),controller.upload)
 
 
