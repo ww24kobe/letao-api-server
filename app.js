@@ -6,8 +6,10 @@ var cors = require("cors");
 var cookieParser = require('cookie-parser')
 
 var bodyParser = require('body-parser');
+
 require('body-parser-xml')(bodyParser);
 app.use(bodyParser.xml());
+
 var xmlparser = require('express-xml-bodyparser'); //引入
 
 app.use(cookieParser())

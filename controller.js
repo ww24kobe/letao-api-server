@@ -365,7 +365,6 @@ controller.getaddress = async (req, res) => {
 
 // 用户添加收货地址
 controller.addaddress = async (req, res) => {
-    // console.log(req.params)
     var {
         name,
         tel,
@@ -378,7 +377,6 @@ controller.addaddress = async (req, res) => {
         user_id,
         addressDetail
     } = Object.assign(req.body, req.params);
-    // var add_time
     var sql = `insert into 
                 address(name,tel,province,city,country,postalCode,isDefault,areaCode,addressDetail,user_id,add_time) 
                 values('${name}', '${tel}', '${province}', '${city}', '${country}', '${postalCode}', 
@@ -387,6 +385,13 @@ controller.addaddress = async (req, res) => {
         var rows = await query(sql);
         response.status = rows.affectedRows ? 0 : 1;
         response.message = rows.affectedRows ? '添加地址成功' : '添加地址失败';
+        let insertId = rows.insertId;
+        // 修改默认收货地址
+        var sql2 = `update address set isDefault = 0 where user_id=${user_id} and id != ${insertId}`;
+        console.log(sql);
+        if (isDefault == 1) {
+            query(sql2);
+        }
     } catch (e) {
         response.status = failStatus;
         response.message = e.message;
@@ -432,7 +437,8 @@ controller.updateaddress = async (req, res) => {
         addressDetail
     } = req.body;
     var isCorrent = true;
-    isDefault = isDefault == 1 ? 1 : 0[address_id, name, tel, province, city, country, postalCode, user_id, addressDetail, areaCode].forEach(v => {
+    isDefault = isDefault == 1 ? 1 : 0;
+    [address_id, name, tel, province, city, country, postalCode, user_id, addressDetail, areaCode].forEach(v => {
         if (!v) {
             isCorrent = false;
         }
@@ -452,7 +458,7 @@ controller.updateaddress = async (req, res) => {
                 where id = ${address_id}
                 `;
         // 修改默认收货地址
-        var sql2 = "update address set is_default = 0 where id != ${address_id}";
+        var sql2 = `update address set is_default = 0 where id != ${address_id}`;
 
         if (isDefault == 1) {
             query(sql2);
@@ -642,9 +648,12 @@ controller.getarticle = async (req, res) => {
         message: 'success'
     }
     var sql = "SELECT t1.*,t2.cat_name FROM le_article t1 left join le_category t2 on t1.cat_id = t2.id order by t1.id desc limit " + offset + ', ' + pagesize;
+    var countSql = "select count(*) as count from le_article";
     var rows = await query(sql)
+    var result = await query(countSql)
     rows.map(v=> v.img_url = getDomain() + v.img_url)
     response.data = rows;
+    response.total = result[0]['count']
     res.json(response)
 }
 
@@ -660,7 +669,6 @@ controller.getOneArticle = async (req, res) => {
     }
     var sql = `select * from le_article where id = ${id}`;
     var rows = await query(sql)
-    rows.map(v => v.img_url = getDomain() + v.img_url)
     response.data = rows[0] || null;
     res.json(response)
 }
@@ -687,7 +695,6 @@ controller.delarticle = async (req, res) => {
 // 上传文件
 controller.upload = (req,res) => {
     
-    // console.log("file",req.file)
     var img_url = '';
     if(req.file){
         var extIndex = req.file.originalname.lastIndexOf('.');
@@ -730,6 +737,7 @@ controller.addarticle = async (req,res) => {
 // 修改文章
 controller.updArticle = async (req, res) => {
     var {
+        id,
         title,
         cat_id,
         add_date,
@@ -738,27 +746,30 @@ controller.updArticle = async (req, res) => {
         content
     } = req.body;
     status = status ? 1 : 0;
-    // var sql = `insert into  le_article(title,cat_id,status,add_date,content,img_url)
-    //             values ('${title}','${cat_id}','${status}','${utc2Date(add_date)}','${content}','${img_url}')`
-    // var response = {};
-    // try {
-    //     var rows = await query(sql);
-    //     response.code = 200;
-    //     response.message = 'add success';
-    // } catch (e) {
-    //     response.message = e.message;
-    //     response.code = 0;
-    // }
-    res.json(req.body);
+    var sql = `update le_article
+                set title = '${title}',
+                cat_id = ${cat_id},
+                add_date = '${utc2Date(add_date)}',
+                content = '${content}',
+                img_url = '${img_url}',
+                status = ${status} where id = ${id}`;
+    var response = {};
+    try {
+        var rows = await query(sql);
+        response.code = rows.affectedRows ? 200 : 0
+        response.message = 'upd success';
+    } catch (e) {
+        response.message = e.message;
+        response.code = 0;
+    }
+    res.json(response);
+    // res.json(res.body)
 }
 
 
 // 获取分类
 // 获取文章
 controller.getcate = async (req, res) => {
-    // var page = parseInt(req.query.page) || 1;
-    // var pagesize = parseInt(req.query.pagesize) || 3;
-    // var offset = (page - 1) * pagesize;
     // 代表返回的数据结构
     var response = {
         code: 200,
